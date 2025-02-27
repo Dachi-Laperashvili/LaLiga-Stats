@@ -23,6 +23,7 @@ team_url = team_urls[0] # getting first team url
 
 data = requests.get(team_url)
 
+# matches dataframe
 matches = pd.read_html(data.text, match="Scores & Fixtures") # returning table wich has string 'scores & fixtures' inside it
 
 
@@ -37,7 +38,11 @@ links = [l for l in links if l and 'all_comps/shooting/' in l] # finding shootin
 
 data = requests.get(f"https://fbref.com{links[0]}") # selecting first match
 
+# shootings dataframe
 shootings = pd.read_html(data.text,match="Shooting")[0] # making it into dataframe
 
-print(shootings.head()) # returning first 5 elements
+shootings.columns = shootings.columns.droplevel() # removing first column, because don't want multi-level index
 
+team_data = matches[0].merge(shootings[["Date","Sh", "SoT", "Dist", "FK","PK", "PKatt"]], on="Date") # combining matches and shooting datas based on the Date column
+
+print(team_data.head())  # returning first 5 elements
